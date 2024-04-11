@@ -12,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Rectangle;
 
 import javax.swing.SwingConstants;
@@ -45,6 +46,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InChiTietHoaDon;
+import Interface.InTour;
 import bus.ChiTietHoaDon_BUS;
 import bus.Tour_BUS;
 import connectDB.ConnectDB;
@@ -60,7 +63,9 @@ import javax.swing.table.TableRowSorter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
+import java.rmi.RemoteException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.beans.PropertyChangeEvent;
@@ -87,17 +92,17 @@ public class TrangChu extends JFrame {
 	private JTextField txtDDDhagiang;
 	private JTextField dateKthagiang;
 	private JTable table;
-	private Tour_BUS tour_bus;
+	private InTour tour_bus;
 	private DefaultTableModel model;
 	private JComboBox cbGia;
 	private JComboBox cbTen;
 	private JComboBox cbDD;
 	private JDateChooser dateNgKH;
-	private DatTour_DAO datTour_dao;
-	private ChiTietHoaDon_DAO CTHD_dao;
+//	private DatTour datTour_dao;
+//	private ChiTietHoaDon_DAO CTHD_dao;
 	private JFrame frame;
 	private Date ngayKH;
-	private ChiTietHoaDon_BUS CTHD_bus;
+	private InChiTietHoaDon CTHD_bus;
 	private static JLabel lblThongBao;
 
 	/**
@@ -118,8 +123,10 @@ public class TrangChu extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	public TrangChu() {
+	public TrangChu() throws RemoteException, SQLException {
 		setBackground(SystemColor.activeCaptionBorder);
 		try {
 			ConnectDB.getInstance().connect();
@@ -546,12 +553,23 @@ public class TrangChu extends JFrame {
 		btnDatHoiAn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				if(t.getSoluong()-getSLTTour(txtmaTdanang_hoian.getText())==0) {
-					JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
-					
-					return;
+				try {
+					if(t.getSoluong()-getSLTTour(txtmaTdanang_hoian.getText())==0) {
+						JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
+						
+						return;
+					}
+				} catch (HeadlessException | RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				QuanLyKhachHang qlkh = new QuanLyKhachHang();
+				QuanLyKhachHang qlkh = null;
+				try {
+					qlkh = new QuanLyKhachHang();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				qlkh.getMaTourInTrangChu(txtmaTdanang_hoian.getText());
 				qlkh.setVisible(true);
 				
@@ -577,14 +595,25 @@ public class TrangChu extends JFrame {
 		btnDatHaGiang.setFont(new Font("Segoe UI", Font.BOLD, 9));
 		btnDatHaGiang.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(t2.getSoluong()-getSLTTour(textmahagiang.getText())==0) {
-					JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
-					
-					return;
+				try {
+					if(t2.getSoluong()-getSLTTour(textmahagiang.getText())==0) {
+						JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
+						
+						return;
+					}
+				} catch (HeadlessException | RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 				
 				
-				QuanLyKhachHang qlkh = new QuanLyKhachHang();
+				QuanLyKhachHang qlkh = null;
+				try {
+					qlkh = new QuanLyKhachHang();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				qlkh.getMaTourInTrangChu(textmahagiang.getText());
 				qlkh.setVisible(true);
 				
@@ -607,12 +636,23 @@ public class TrangChu extends JFrame {
 		btnDatLySon.setFont(new Font("Segoe UI", Font.BOLD, 9));
 		btnDatLySon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(t1.getSoluong()-getSLTTour(txtmaLyson.getText())==0) {
-					JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
-					
-					return;
+				try {
+					if(t1.getSoluong()-getSLTTour(txtmaLyson.getText())==0) {
+						JOptionPane.showMessageDialog(null, "Hiện tại Tour này đã hết chổ ! Bạn có thể tìm Tour khác ở danh sách Tour.");
+						
+						return;
+					}
+				} catch (HeadlessException | RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				QuanLyKhachHang qlkh = new QuanLyKhachHang();
+				QuanLyKhachHang qlkh = null;
+				try {
+					qlkh = new QuanLyKhachHang();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				qlkh.getMaTourInTrangChu(txtmaLyson.getText());
 				qlkh.setVisible(true);
 				
@@ -746,7 +786,17 @@ public class TrangChu extends JFrame {
 				if(!cbGia.getSelectedItem().equals("Tất Cả"))cbGia.setSelectedIndex(0);
 				if(dateNgKH!=null) dateNgKH.setDate(null);
 				XoahetDuLieutrenTable();
-				DocDuLieuTuDB();
+				try {
+					try {
+						DocDuLieuTuDB();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				return;
 			}
 		});
@@ -778,7 +828,13 @@ public class TrangChu extends JFrame {
 //					else if(hoi==JOptionPane.NO_OPTION) {
 //					dt.getMaTourInTrangChu(table.getValueAt(row, 0).toString());
 //					getMaTour();
-							QuanLyKhachHang qlkh = new QuanLyKhachHang();
+							QuanLyKhachHang qlkh = null;
+							try {
+								qlkh = new QuanLyKhachHang();
+							} catch (RemoteException | SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 							qlkh.getMaTourInTrangChu(table.getValueAt(row, 0).toString());
 							qlkh.setVisible(true);
 							
@@ -860,7 +916,13 @@ public class TrangChu extends JFrame {
 		panel_2.add(btnFR_QLTour);
 		btnFR_QLTour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				QuanLyTour qlTour = new QuanLyTour();
+				QuanLyTour qlTour = null;
+				try {
+					qlTour = new QuanLyTour();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				qlTour.setVisible(true);
 				setVisible(false);
 			}
@@ -894,7 +956,13 @@ public class TrangChu extends JFrame {
 //				HoaDon hd = new HoaDon();
 //				hd.setVisible(true);
 //				setVisible(false);
-				ThongKe tk = new ThongKe();
+				ThongKe tk = null;
+				try {
+					tk = new ThongKe();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tk.frame.setVisible(true);
 				dispose();
 			}
@@ -910,7 +978,13 @@ public class TrangChu extends JFrame {
 		panel_2.add(btnFR_DatTour);
 		btnFR_DatTour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DatTour dt = new DatTour();
+				DatTour dt = null;
+				try {
+					dt = new DatTour();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				dt.setVisible(true);
 				setVisible(false);
 			}
@@ -926,7 +1000,13 @@ public class TrangChu extends JFrame {
 		panel_2.add(btnFR_QLKhach);
 		btnFR_QLKhach.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				QuanLyKhachHang qlKhach = new QuanLyKhachHang();
+				QuanLyKhachHang qlKhach = null;
+				try {
+					qlKhach = new QuanLyKhachHang();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				qlKhach.setVisible(true);
 				setVisible(false);
 			}
@@ -940,7 +1020,13 @@ public class TrangChu extends JFrame {
 		btn_QLNV.setIcon(new ImageIcon("img\\User group.png"));
 		btn_QLNV.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				QuanLyNhanVien nv = new QuanLyNhanVien();
+				QuanLyNhanVien nv = null;
+				try {
+					nv = new QuanLyNhanVien();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				nv.getFrame().setVisible(true);
 				setVisible(false);
 			}
@@ -971,7 +1057,7 @@ public class TrangChu extends JFrame {
 		lblNewLabel_5.setBounds(0, 0, 965, 75);
 		panel_1.add(lblNewLabel_5);
 	}
-	public void DocDuLieuTuDB() {
+	public void DocDuLieuTuDB() throws RemoteException, SQLException {
 		List<Tour> list = tour_bus.getalltbTour();
 		int slt = 0;
 		for(Tour tour: list) {
@@ -1214,13 +1300,13 @@ public class TrangChu extends JFrame {
 		DefaultTableModel md = (DefaultTableModel)table.getModel();
 		md.getDataVector().removeAllElements();
 	}
-	public int getSLTTour(String ma) {
+	public int getSLTTour(String ma) throws RemoteException, SQLException {
 		CTHD_bus = new ChiTietHoaDon_BUS();
 		return CTHD_bus.SLTourDaDat(ma);
 	
 	}
 	
-	public String getMaTour() {
+	public String getMaTour() throws RemoteException, SQLException {
 		DatTour dt = new DatTour();
 		int row =-1;
 			 row = table.getSelectedRow();

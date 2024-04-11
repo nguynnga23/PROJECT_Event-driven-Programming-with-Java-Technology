@@ -33,6 +33,7 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -43,6 +44,8 @@ import java.util.List;
 
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InKhachHang;
+import Interface.InTour;
 import bus.KhachHang_BUS;
 import bus.Tour_BUS;
 import connectDB.ConnectDB;
@@ -67,12 +70,12 @@ public class QuanLyKhachHang extends JFrame {
 	private JDateChooser dateNgSinh;
 //	private khachhang_dao kh_dao;
 //	private tour_dao tour_dao;
-	private KhachHang_BUS kh_bus;
-	private Tour_BUS tour_bus;
+	private InKhachHang kh_bus;
+	private InTour tour_bus;
 	private KhachHang_CRE kh_cre;
 	private JTextField txtTimCCCD;
 	private TableRowSorter<TableModel> sorter;
-	private JTextField textTimSDT;
+	private JTextField textTimTenKH;
 	private static JLabel lblthongbao;
 	private JTextField txtMaTourdangchon;
 
@@ -95,8 +98,10 @@ public class QuanLyKhachHang extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	public QuanLyKhachHang() {
+	public QuanLyKhachHang() throws RemoteException, SQLException {
 		
 		try {
 			ConnectDB.getInstance().connect();
@@ -244,7 +249,12 @@ public class QuanLyKhachHang extends JFrame {
 		btnThem.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				themActiosn();
+				try {
+					themActiosn();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			
 		});
@@ -304,12 +314,17 @@ public class QuanLyKhachHang extends JFrame {
 		btnTimCCCDvsSDT.setForeground(SystemColor.text);
 		btnTimCCCDvsSDT.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Tim();
+				try {
+					Tim();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnTimCCCDvsSDT.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		
-		JLabel lblNewLabel_1 = new JLabel("Nhập số điện thoại ");
+		JLabel lblNewLabel_1 = new JLabel("Nhập tên ");
 		lblNewLabel_1.setBounds(10, 55, 120, 23);
 		panel_3.add(lblNewLabel_1);
 		lblNewLabel_1.setForeground(SystemColor.textHighlight);
@@ -327,10 +342,10 @@ public class QuanLyKhachHang extends JFrame {
 		lblTmKhchHng.setForeground(SystemColor.textHighlight);
 		lblTmKhchHng.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		
-		textTimSDT = new JTextField();
-		textTimSDT.setBounds(140, 55, 180, 25);
-		panel_3.add(textTimSDT);
-		textTimSDT.setColumns(10);
+		textTimTenKH = new JTextField();
+		textTimTenKH.setBounds(140, 55, 180, 25);
+		panel_3.add(textTimTenKH);
+		textTimTenKH.setColumns(10);
 		
 		JButton btnNewButton = new JButton("Danh Sách");
 		btnNewButton.setBounds(890, 163, 100, 25);
@@ -340,7 +355,12 @@ public class QuanLyKhachHang extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				XoahetDuLieutrenTable();
-				DocDuLieutrenSQL();
+				try {
+					DocDuLieutrenSQL();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		btnNewButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -352,7 +372,13 @@ public class QuanLyKhachHang extends JFrame {
 		btnThoat.setForeground(SystemColor.text);
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TrangChu tc = new TrangChu();
+				TrangChu tc = null;
+				try {
+					tc = new TrangChu();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tc.setVisible(true);
 				setVisible(false);
 			}
@@ -440,7 +466,7 @@ public class QuanLyKhachHang extends JFrame {
 		
 		DocDuLieutrenSQL();
 	}
-	private void themActiosn() {
+	private void themActiosn() throws RemoteException, SQLException {
 			if(txtMaKH.getText().equals("")) {
 				if(Invalid()) {
 					
@@ -496,7 +522,7 @@ public class QuanLyKhachHang extends JFrame {
 		txtCCCD.setText("");
 		txtemail.setText("");
 		txtTimCCCD.setText("");
-		textTimSDT.setText("");
+		textTimTenKH.setText("");
 		lblthongbao.setText("");
 
 	}
@@ -505,7 +531,7 @@ public class QuanLyKhachHang extends JFrame {
 		md.getDataVector().removeAllElements();
 		
 	}
-	private void DocDuLieutrenSQL() {
+	private void DocDuLieutrenSQL() throws RemoteException {
 		List<KhachHang> list = kh_bus.getallkhachhang();
 		if(modelkhachhang==null) {
 			JOptionPane.showMessageDialog(null, "modelkhachhang không tồn tại");
@@ -554,6 +580,7 @@ public class QuanLyKhachHang extends JFrame {
 		try {
 			if(Invalid()) {
 				String maKH = txtMaKH.getText();
+				
 				String tenKH = txtHoTen.getText();
 				java.sql.Date ngaysinh=  new java.sql.Date(dateNgSinh.getDate().getTime());
 				String diachi =  txtdiachi.getText();
@@ -582,41 +609,44 @@ public class QuanLyKhachHang extends JFrame {
 		}
 	}
 	
-	private void Tim() {
+	private void Tim() throws RemoteException {
 		try {
 
-			String CCCDTim = txtTimCCCD.getText();
-			String sdtTim = textTimSDT.getText();
-			if(CCCDTim.equals("") && sdtTim.equals("")) {
-//				JOptionPane.showMessageDialog(null, " Vui lòng nhập CCCD hoặc số điện thoại ");
-				lblthongbao.setText("Vui lòng nhập CCCD hoặc số điện thoại ");
-//				return;
+//			String CCCDTim = txtTimCCCD.getText();
+			String sdtTim = textTimTenKH.getText();
+			if(sdtTim.equals("")) {
+				JOptionPane.showMessageDialog(null, " Vui lòng nhập tên ");
+//				lblthongbao.setText("Vui lòng nhập CCCD hoặc số điện thoại ");
+				return;
 			}
 			
 			else {
-			List<KhachHang> listkhtheocmnd = null;
-			listkhtheocmnd = kh_bus.getkhachhangTheoCCCD(CCCDTim);
+//			List<KhachHang> listkhtheocmnd = null;
+//			listkhtheocmnd = kh_bus.getkhachhangTheoCCCD(CCCDTim);
 
 			List<KhachHang> listkhtheosdt = null;
-			listkhtheosdt = kh_bus.getkhachhangTheoSDT(sdtTim);
+			listkhtheosdt = kh_bus.timKhachHangTheoChuoi(sdtTim);
 			
-			if(!listkhtheocmnd.isEmpty()) {
-				XoahetDuLieutrenTable();
-			for(KhachHang kh :listkhtheocmnd) {
-				modelkhachhang.addRow(new Object[] {kh.getMaKH(),kh.getTenKH(),kh.getNgaySinh(),kh.getDiaChi(),kh.getSdt(),kh.getEmail(),kh.getCmnd()});
-			}
-			
-			}
+//			if(!listkhtheocmnd.isEmpty()) {
+//				XoahetDuLieutrenTable();
+//			for(KhachHang kh :listkhtheocmnd) {
+//				modelkhachhang.addRow(new Object[] {kh.getMaKH(),kh.getTenKH(),kh.getNgaySinh(),kh.getDiaChi(),kh.getSdt(),kh.getEmail(),kh.getCmnd()});
+//			}
+//			
+//			}
 			if( !listkhtheosdt.isEmpty()){
 				XoahetDuLieutrenTable();
 				for(KhachHang kh :listkhtheosdt) {
 					modelkhachhang.addRow(new Object[] {kh.getMaKH(),kh.getTenKH(),kh.getNgaySinh(),kh.getDiaChi(),kh.getSdt(),kh.getEmail(),kh.getCmnd()});
 				}
 			}
-			if(listkhtheocmnd.isEmpty() && listkhtheosdt.isEmpty()) {
-//				JOptionPane.showMessageDialog(null,"Không tìm thấy ");
-				lblthongbao.setText("Không tìm thấy ");
+			else {
+				JOptionPane.showMessageDialog(null, " Không có ");
 			}
+//			if(listkhtheocmnd.isEmpty() && listkhtheosdt.isEmpty()) {
+////				JOptionPane.showMessageDialog(null,"Không tìm thấy ");
+//				lblthongbao.setText("Không tìm thấy ");
+//			}
 			}
 //			DocDuLieutrenSQL();
 		} catch (Exception e) {
@@ -639,7 +669,7 @@ public class QuanLyKhachHang extends JFrame {
 		return maKH;
 	}
 	
-	private boolean Invalid() {
+	private boolean Invalid() throws RemoteException {
 		String tenKH = txtHoTen.getText();
 	
 		String diachi =  txtdiachi.getText();

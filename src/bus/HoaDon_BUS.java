@@ -1,5 +1,8 @@
 package bus;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,54 +10,66 @@ import Interface.InHoaDon;
 import dao.HoaDon_DAO;
 import entity.HoaDon;
 
-public class HoaDon_BUS implements InHoaDon {
-	HoaDon_DAO hd_dao = new HoaDon_DAO();
+public class HoaDon_BUS extends UnicastRemoteObject implements InHoaDon {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1692519224759378801L;
+	private HoaDon_DAO hd_dao;
+
+	public HoaDon_BUS() throws RemoteException, SQLException {
+		hd_dao = new HoaDon_DAO();
+	}
+
 	@Override
-	public ArrayList<HoaDon> getAllHoaDon() {
-		// TODO Auto-generated method stub
+	public ArrayList<HoaDon> getAllHoaDon() throws RemoteException {
 		return hd_dao.getAllHoaDon();
 	}
+
 	@Override
-	public ArrayList<HoaDon> getHoaDonTheoMaHD(String maHD) {
-		// TODO Auto-generated method stub
+	public ArrayList<HoaDon> getHoaDonTheoMaHD(String maHD) throws RemoteException {
 		return hd_dao.getHoaDonTheoMaHD(maHD);
 	}
+
 	@Override
-	public boolean create(HoaDon hd) {
-		// TODO Auto-generated method stub
+	public boolean create(HoaDon hd) throws RemoteException {
 		return hd_dao.create(hd);
 	}
+
 	@Override
-	public boolean delete(HoaDon hd) {
+	public boolean delete(HoaDon hd) throws RemoteException {
 		return hd_dao.delete(hd);
 	}
-	
-	public String getTenKH(String maKH) {
-		// TODO Auto-generated method stub
+
+	@Override
+	public String getTenKH(String maKH) throws RemoteException {
 		return hd_dao.getTenKH(maKH);
 	}
-	public String getTenNV(String maNV) {
-		// TODO Auto-generated method stub
+
+	@Override
+	public String getTenNV(String maNV) throws RemoteException {
 		return hd_dao.getTenNV(maNV);
 	}
-	
-	public List<HoaDon> getHoaDonsByKhachHang(String ma){
+
+	@Override
+	public List<HoaDon> getHoaDonsByKhachHang(String ma) throws RemoteException {
 		return hd_dao.getHoaDonsByKhachHang(ma);
 	}
-	
-	public List<HoaDon> getHoaDonsByNhanVien(String ma){
+
+	@Override
+	public List<HoaDon> getHoaDonsByNhanVien(String ma) throws RemoteException{
 		return hd_dao.getHoaDonsByNhanVien(ma);
 	}
-	
-	public ArrayList<HoaDon> getHoaDonTheoNgayLap(String nl){
+
+	@Override
+	public ArrayList<HoaDon> getHoaDonTheoNgayLap(String nl)throws RemoteException {
 		return hd_dao.getHoaDonTheoNgayLap(nl);
 	}
-	public List<HoaDon> getHoaDonsByNgayLap(int ngay,int thang,int nam) {
 
+	@Override
+	public List<HoaDon> getHoaDonsByNgayLap(int ngay, int thang, int nam)throws RemoteException {
 
 		return hd_dao.getHoaDonsByNgayLap(ngay, thang, nam);
 	}
-	
-	
 
 }

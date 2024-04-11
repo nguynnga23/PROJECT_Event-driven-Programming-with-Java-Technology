@@ -15,6 +15,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.awt.Color;
@@ -24,6 +26,10 @@ import javax.swing.JSlider;
 import java.awt.Canvas;
 import javax.swing.ImageIcon;
 import javax.swing.border.TitledBorder;
+
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+
 import java.awt.SystemColor;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
@@ -43,8 +49,10 @@ public class DangNhap extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					FlatLightLaf.setup();
 					DangNhap frame = new DangNhap();
 					frame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -108,7 +116,13 @@ public class DangNhap extends JFrame {
 				String mk = txtMatKhau.getText();
 				if(tk.equals("admin") && mk.equals("admin")){
 					JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
-					TrangChu tc = new TrangChu();
+					TrangChu tc = null;
+					try {
+						tc = new TrangChu();
+					} catch (RemoteException | SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					tc.setVisible(true);
 					setVisible(false);
 					

@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InTour;
 import bus.Tour_BUS;
 import connectDB.ConnectDB;
 import cre.Tour_CRE;
@@ -32,6 +33,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,7 +68,7 @@ public class QuanLyTour extends JFrame implements MouseListener {
 	private JTextField txtSoLuong;
 	private JTable table;
 	private DefaultTableModel model;
-	private static Tour_BUS tour_bus;
+	private static InTour tour_bus;
 	private Tour_CRE tour_cre;
 	private JPanel panel_4;
 	private JComboBox comboBox;
@@ -88,8 +91,10 @@ public class QuanLyTour extends JFrame implements MouseListener {
 
 	/**
 	 * Create the frame.
+	 * @throws RemoteException 
+	 * @throws SQLException 
 	 */
-	public QuanLyTour() {
+	public QuanLyTour() throws RemoteException, SQLException {
 
 		// Kết nối đến SQL
 		try {
@@ -278,7 +283,12 @@ public class QuanLyTour extends JFrame implements MouseListener {
 		btnDanhSach.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				XoaDuLieuTrentable();
-				DocDuLieuTuDB();
+				try {
+					DocDuLieuTuDB();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				XoaRong();
 			}
 		});
@@ -380,7 +390,7 @@ public class QuanLyTour extends JFrame implements MouseListener {
 					try {
 						tour_bus.create(tour);
 						model.addRow(new Object[] { tour.getMaTour(), tour.getTenTour(), tour.getDiadiemden(),
-								tour.getNgaykhoihanh(), tour.getNgaykethuc(), tour.getSoluong(),tour.getGiatien() });
+								tour.getNgaykhoihanh(), tour.getNgaykethuc(), tour.getSoluong(), tour.getGiatien() });
 					} catch (Exception e2) {
 						JOptionPane.showMessageDialog(null, "Trùng mã");
 					}
@@ -390,7 +400,13 @@ public class QuanLyTour extends JFrame implements MouseListener {
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 //						dispose();
-				TrangChu tc = new TrangChu();
+				TrangChu tc = null;
+				try {
+					tc = new TrangChu();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tc.setVisible(true);
 				setVisible(false);
 			}
@@ -422,7 +438,7 @@ public class QuanLyTour extends JFrame implements MouseListener {
 		table.addMouseListener(this);
 	}
 
-	public void DocDuLieuTuDB() {
+	public void DocDuLieuTuDB() throws RemoteException {
 		List<Tour> list = tour_bus.getalltbTour();
 		for (Tour tour : list) {
 			model.addRow(new Object[] { tour.getMaTour(), tour.getTenTour(), tour.getDiadiemden(),

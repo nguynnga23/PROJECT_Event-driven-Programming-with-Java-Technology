@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
@@ -11,49 +12,50 @@ import Interface.InTour;
 import connectDB.ConnectDB;
 import entity.Tour;
 
-public class Tour_DAO implements InTour{
-	public Tour_DAO() {
-		
+public class Tour_DAO implements InTour {
+	public Tour_DAO() throws SQLException {
+		ConnectDB.getInstance().connect();
 	}
-	public ArrayList<Tour> getalltbTour(){
+	@Override
+	public ArrayList<Tour> getalltbTour() {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		try {
 			ConnectDB.getInstance();
-			Connection con= ConnectDB.getConnection();
+			Connection con = ConnectDB.getConnection();
 			String sql = "Select * from Tour";
-			if(con !=null) {
-			Statement statement = con.createStatement();
-			
-			ResultSet rs= statement.executeQuery(sql);
-			while(rs.next()) {
-				String maTour = rs.getString("maTour");
-				String tenTour= rs.getString("tenTour");
-				String ddden = rs.getString("diaDiemDen");
-				Date ngaykh = rs.getDate("ngayKhoiHanh");
-				Date ngaykt = rs.getDate("ngayKetThuc");
-				double gia = rs.getDouble("giaTour");
-				int sl = rs.getInt("soLuongKhach");
-				Tour tour = new Tour(maTour,tenTour,ddden,ngaykh,ngaykt,gia,sl);
-				dsTour.add(tour);
-			}
-			}
-			else System.out.println("con ở tour_dao is null");
-			
-			
+			if (con != null) {
+				Statement statement = con.createStatement();
+
+				ResultSet rs = statement.executeQuery(sql);
+				while (rs.next()) {
+					String maTour = rs.getString("maTour");
+					String tenTour = rs.getString("tenTour");
+					String ddden = rs.getString("diaDiemDen");
+					Date ngaykh = rs.getDate("ngayKhoiHanh");
+					Date ngaykt = rs.getDate("ngayKetThuc");
+					double gia = rs.getDouble("giaTour");
+					int sl = rs.getInt("soLuongKhach");
+					Tour tour = new Tour(maTour, tenTour, ddden, ngaykh, ngaykt, gia, sl);
+					dsTour.add(tour);
+				}
+			} else
+				System.out.println("con ở tour_dao is null");
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 		return dsTour;
 	}
+	@Override
 	public ArrayList<Tour> getTourTheoMaTour(String maTourID) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where maTour = ?";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, maTourID);
@@ -70,21 +72,18 @@ public class Tour_DAO implements InTour{
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
-	
+	@Override
 	public boolean create(Tour tour) {
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
@@ -100,12 +99,10 @@ public class Tour_DAO implements InTour{
 			stmt.setDouble(6, tour.getGiatien());
 			stmt.setInt(7, tour.getSoluong());
 			n = stmt.executeUpdate();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
 			} catch (Exception e2) {
@@ -113,9 +110,9 @@ public class Tour_DAO implements InTour{
 				e2.printStackTrace();
 			}
 		}
-		return n>0;
+		return n > 0;
 	}
-	
+	@Override
 	public boolean delete(Tour tour) {
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
@@ -125,12 +122,10 @@ public class Tour_DAO implements InTour{
 			stmt = con.prepareStatement("delete from Tour where maTour = ?");
 			stmt.setString(1, tour.getMaTour());
 			n = stmt.executeUpdate();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
 			} catch (Exception e2) {
@@ -138,17 +133,18 @@ public class Tour_DAO implements InTour{
 				e2.printStackTrace();
 			}
 		}
-		return n>0;
+		return n > 0;
 	}
-	
+	@Override
 	public boolean update(Tour tour) {
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		int n = 0;
 		try {
-			stmt = con.prepareStatement("update Tour set  tenTour = ?, diaDiemDen = ?, ngayKhoiHanh = ?, ngayKetThuc = ?, giaTour = ?, soLuongKhach = ? where maTour =?");
-			
+			stmt = con.prepareStatement(
+					"update Tour set  tenTour = ?, diaDiemDen = ?, ngayKhoiHanh = ?, ngayKetThuc = ?, giaTour = ?, soLuongKhach = ? where maTour =?");
+
 			stmt.setString(1, tour.getTenTour());
 			stmt.setString(2, tour.getDiadiemden());
 			stmt.setDate(3, tour.getNgaykhoihanh());
@@ -157,12 +153,10 @@ public class Tour_DAO implements InTour{
 			stmt.setInt(6, tour.getSoluong());
 			stmt.setString(7, tour.getMaTour());
 			n = stmt.executeUpdate();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
 			} catch (Exception e2) {
@@ -170,17 +164,18 @@ public class Tour_DAO implements InTour{
 				e2.printStackTrace();
 			}
 		}
-		return n>0;
+		return n > 0;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTenvsDiaDiem(String maTourID, String dd) {
-ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+		ArrayList<Tour> dsTour = new ArrayList<Tour>();
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where tenTour = ? AND diaDiemDen = ? ";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, maTourID);
@@ -199,29 +194,27 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTen(String Ten) {
-ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+		ArrayList<Tour> dsTour = new ArrayList<Tour>();
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where tenTour = ? ";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, Ten);
@@ -238,29 +231,27 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoDiaDiem(String dd) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where diaDiemDen = ? ";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, dd);
@@ -277,29 +268,27 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
-	public ArrayList<Tour> getTourTheoGia(double giamin,double giamax) {
-ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+	public ArrayList<Tour> getTourTheoGia(double giamin, double giamax) {
+		ArrayList<Tour> dsTour = new ArrayList<Tour>();
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where giaTour >= ? AND giaTour <=?  ";
 			stmt = con.prepareStatement(sql);
 			stmt.setDouble(1, giamin);
@@ -317,29 +306,27 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoNgayKH(Date ngayKh) {
-ArrayList<Tour> dsTour = new ArrayList<Tour>();
-		
+		ArrayList<Tour> dsTour = new ArrayList<Tour>();
+
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where ngayKhoiHanh >= ? ";
 			stmt = con.prepareStatement(sql);
 			stmt.setDate(1, ngayKh);
@@ -356,31 +343,29 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
-	public ArrayList<Tour> getTourTheoTimTenvsGia(String Ten, double giamin,double giamax) {
+	public ArrayList<Tour> getTourTheoTimTenvsGia(String Ten, double giamin, double giamax) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where tenTour = ? AND  giaTour >= ? AND giaTour <=?  ";
 			stmt = con.prepareStatement(sql);
-			stmt.setString(1,Ten );
+			stmt.setString(1, Ten);
 			stmt.setDouble(2, giamin);
 			stmt.setDouble(3, giamax);
 			ResultSet rs = stmt.executeQuery();
@@ -396,20 +381,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTenvsNgayKH(String Ten, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -417,7 +400,7 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where tenTour = ? AND  ngayKhoiHanh >= ?  ";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, Ten);
@@ -435,32 +418,30 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
-	
+
 	}
+
 	@Override
-	public ArrayList<Tour> getTourTheoTimDiaDiemvsGia(String dd, double giamin,double giamax) {
+	public ArrayList<Tour> getTourTheoTimDiaDiemvsGia(String dd, double giamin, double giamax) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where diaDiemDen = ? AND  giaTour >= ? AND giaTour <=?  ";
 			stmt = con.prepareStatement(sql);
-			stmt.setString(1,dd );
+			stmt.setString(1, dd);
 			stmt.setDouble(2, giamin);
 			stmt.setDouble(3, giamax);
 			ResultSet rs = stmt.executeQuery();
@@ -476,20 +457,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimDiaDiemvsNgayKH(String dd, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -497,7 +476,7 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where diaDiemDen = ? AND  ngayKhoiHanh >= ?  ";
 			stmt = con.prepareStatement(sql);
 			stmt.setString(1, dd);
@@ -515,31 +494,29 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
-	public ArrayList<Tour> getTourTheoTimGiavsNgayKH(double giamin,double giamax, Date NgayKH) {
+	public ArrayList<Tour> getTourTheoTimGiavsNgayKH(double giamin, double giamax, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		ConnectDB.getInstance();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where giaTour >= ? AND giaTour <=? AND  ngayKhoiHanh >= ?  ";
 			stmt = con.prepareStatement(sql);
-			stmt.setDouble(1,giamin );
+			stmt.setDouble(1, giamin);
 			stmt.setDouble(2, giamax);
 			stmt.setDate(3, NgayKH);
 			ResultSet rs = stmt.executeQuery();
@@ -555,20 +532,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTenvsDiaDiemvsGia(String ten, String dd, double giamin, double giamax) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -576,10 +551,10 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where giaTour >= ? AND giaTour <=? AND diaDiemDen = ? AND tenTour =?";
 			stmt = con.prepareStatement(sql);
-			stmt.setDouble(1,giamin );
+			stmt.setDouble(1, giamin);
 			stmt.setDouble(2, giamax);
 			stmt.setString(3, dd);
 			stmt.setString(4, ten);
@@ -596,20 +571,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTenvsDiaDiemvsNgayKH(String ten, String dd, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -617,7 +590,7 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where ngayKhoiHanh >= ?  AND diaDiemDen = ? AND tenTour =?";
 			stmt = con.prepareStatement(sql);
 			stmt.setDate(1, NgayKH);
@@ -636,20 +609,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTenvsGiavsNgayKH(String ten, double giamin, double giamax, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -657,13 +628,13 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where ngayKhoiHanh >= ?  AND giaTour >= ? AND giaTour <=? AND tenTour =?";
 			stmt = con.prepareStatement(sql);
 			stmt.setDate(1, NgayKH);
 			stmt.setDouble(2, giamin);
 			stmt.setDouble(3, giamax);
-			stmt.setString(4,ten);
+			stmt.setString(4, ten);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String maTour = rs.getString(1);
@@ -677,20 +648,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimDiaDiemvsGiavsNgayKH(String dd, double giamin, double giamax, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -698,13 +667,13 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where ngayKhoiHanh >= ?  AND giaTour >= ? AND giaTour <=? AND diaDiemDen =?";
 			stmt = con.prepareStatement(sql);
 			stmt.setDate(1, NgayKH);
 			stmt.setDouble(2, giamin);
 			stmt.setDouble(3, giamax);
-			stmt.setString(4,dd);
+			stmt.setString(4, dd);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String maTour = rs.getString(1);
@@ -718,20 +687,18 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourTheoTimTheoALL(String ten, String dd, double giamin, double giamax, Date NgayKH) {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
@@ -739,14 +706,14 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		Connection con = ConnectDB.getConnection();
 		PreparedStatement stmt = null;
 		try {
-			
+
 			String sql = "Select * from Tour where ngayKhoiHanh >= ?  AND giaTour >= ? AND giaTour <=? AND diaDiemDen =? AND tenTour =?";
 			stmt = con.prepareStatement(sql);
 			stmt.setDate(1, NgayKH);
 			stmt.setDouble(2, giamin);
 			stmt.setDouble(3, giamax);
-			stmt.setString(4,dd);
-			stmt.setString(5,ten);
+			stmt.setString(4, dd);
+			stmt.setString(5, ten);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String maTour = rs.getString(1);
@@ -760,50 +727,46 @@ ArrayList<Tour> dsTour = new ArrayList<Tour>();
 				dsTour.add(tour);
 
 			}
-		}
-		catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				stmt.close();
-			}
-			catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return dsTour;
 	}
+
 	@Override
 	public ArrayList<Tour> getTourOderMax() {
 		ArrayList<Tour> dsTour = new ArrayList<Tour>();
 		try {
 			ConnectDB.getInstance();
-			Connection con= ConnectDB.getConnection();
-			String sql = "SELECT top 3 Tour.*, COUNT(ChiTietHoaDon.maTour) AS SoLanDat\r\n"
-					+ "FROM Tour\r\n"
+			Connection con = ConnectDB.getConnection();
+			String sql = "SELECT top 3 Tour.*, COUNT(ChiTietHoaDon.maTour) AS SoLanDat\r\n" + "FROM Tour\r\n"
 					+ "LEFT JOIN ChiTietHoaDon ON Tour.maTour = ChiTietHoaDon.maTour\r\n"
 					+ "GROUP BY Tour.maTour, Tour.tenTour, Tour.diaDiemDen, Tour.ngayKhoiHanh, Tour.ngayKetThuc, Tour.giaTour, Tour.soLuongKhach\r\n"
 					+ "ORDER BY SoLanDat DESC";
-			if(con !=null) {
-			Statement statement = con.createStatement();
-			
-			ResultSet rs= statement.executeQuery(sql);
-			while(rs.next()) {
-				String maTour = rs.getString("maTour");
-				String tenTour= rs.getString("tenTour");
-				String ddden = rs.getString("diaDiemDen");
-				Date ngaykh = rs.getDate("ngayKhoiHanh");
-				Date ngaykt = rs.getDate("ngayKetThuc");
-				double gia = rs.getDouble("giaTour");
-				int sl = rs.getInt("soLuongKhach");
-				Tour tour = new Tour(maTour,tenTour,ddden,ngaykh,ngaykt,gia,sl);
-				dsTour.add(tour);
-			}
-			}
-			else System.out.println("con ở tour_dao is null");
-			
-			
+			if (con != null) {
+				Statement statement = con.createStatement();
+
+				ResultSet rs = statement.executeQuery(sql);
+				while (rs.next()) {
+					String maTour = rs.getString("maTour");
+					String tenTour = rs.getString("tenTour");
+					String ddden = rs.getString("diaDiemDen");
+					Date ngaykh = rs.getDate("ngayKhoiHanh");
+					Date ngaykt = rs.getDate("ngayKetThuc");
+					double gia = rs.getDouble("giaTour");
+					int sl = rs.getInt("soLuongKhach");
+					Tour tour = new Tour(maTour, tenTour, ddden, ngaykh, ngaykt, gia, sl);
+					dsTour.add(tour);
+				}
+			} else
+				System.out.println("con ở tour_dao is null");
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

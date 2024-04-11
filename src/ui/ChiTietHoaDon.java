@@ -10,6 +10,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import Interface.InChiTietHoaDon;
+import Interface.InHoaDon;
 import bus.ChiTietHoaDon_BUS;
 import bus.HoaDon_BUS;
 import connectDB.ConnectDB;
@@ -33,14 +35,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
+
 import javax.swing.border.EtchedBorder;
 
 public class ChiTietHoaDon {
 
 	public JFrame frame;
 	
-	private static HoaDon_BUS hd_bus;
-	private static ChiTietHoaDon_BUS cthd_bus;
+	private static InHoaDon hd_bus;
+	private static InChiTietHoaDon cthd_bus;
 	
 	private static JTable table;
 	private static DefaultTableModel model;
@@ -75,8 +79,10 @@ public class ChiTietHoaDon {
 
 	/**
 	 * Create the application.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	public ChiTietHoaDon() {
+	public ChiTietHoaDon() throws RemoteException, SQLException {
 		try {
 			ConnectDB.getInstance().connect();
 		} catch (SQLException e1) {
@@ -88,8 +94,10 @@ public class ChiTietHoaDon {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	private void initialize() {
+	private void initialize() throws RemoteException, SQLException {
 		
 		frame = new JFrame();
 		frame.getContentPane().setBackground(SystemColor.scrollbar);
@@ -225,7 +233,13 @@ public class ChiTietHoaDon {
 		JButton btnThoat = new JButton("QUAY LẠI ");
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				QuanLyHoaDon dt = new QuanLyHoaDon();
+				QuanLyHoaDon dt = null;
+				try {
+					dt = new QuanLyHoaDon();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				dt.setVisible(true);
 				frame.setVisible(false);
 			}
@@ -251,7 +265,7 @@ public class ChiTietHoaDon {
 		panel_1.add(lblNewLabel_1_1_5);
 //		DocDuLieuTrenTable();
 	}
-	public void HienTableTheoMaHD(String ma) {
+	public void HienTableTheoMaHD(String ma) throws RemoteException {
 		ArrayList<entity.ChiTietHoaDon> list = cthd_bus.getCTHoaDonTheoMaHD(ma);
 		for(entity.ChiTietHoaDon ct:list) {
 			txtMaHD.setText(ct.getMaHD().getMaHD());
@@ -265,7 +279,7 @@ public class ChiTietHoaDon {
 		}
 	}
 	
-	public void showTongTien(String ma) {
+	public void showTongTien(String ma) throws RemoteException {
 		ArrayList<entity.HoaDon> dshd = hd_bus.getHoaDonTheoMaHD(ma);
 		for(entity.HoaDon hd : dshd) {
 			DecimalFormat x = new DecimalFormat("###,###,###");
@@ -274,7 +288,12 @@ public class ChiTietHoaDon {
 	}
 	
 	public class MyTableCellRenderer extends DefaultTableCellRenderer {
-	    @Override
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = -1712875734330845918L;
+
+		@Override
 	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 	        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 	        c.setBackground(Color.LIGHT_GRAY);

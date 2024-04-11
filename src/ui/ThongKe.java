@@ -16,6 +16,7 @@ import javax.swing.JViewport;
 
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InThongKe;
 import bus.ThongKe_BUS;
 import connectDB.ConnectDB;
 import dao.ThongKe_DAO;
@@ -30,6 +31,7 @@ import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
+import java.rmi.RemoteException;
 import java.beans.PropertyChangeEvent;
 import javax.swing.border.EtchedBorder;
 import javax.swing.JComboBox;
@@ -41,9 +43,9 @@ public class ThongKe {
 	private static JTextField txtDT;
 	private static JDateChooser dateBD;
 	private static JDateChooser dateKT;
-	private static ThongKe_DAO tk_dao;
+//	private static ThongKe_DAO tk_dao;
 	private static DefaultTableModel model;
-	private static ThongKe_BUS tk_bus;
+	private static InThongKe tk_bus;
 	private static Date ngayBD;
 	private static Date ngayKT;
 	private static JTextField txtNam;
@@ -68,15 +70,19 @@ public class ThongKe {
 
 	/**
 	 * Create the application.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	public ThongKe() {
+	public ThongKe() throws RemoteException, SQLException {
 		initialize();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	private void initialize() {
+	private void initialize() throws RemoteException, SQLException {
 		
 		try {
 			ConnectDB.getInstance().connect();
@@ -91,7 +97,7 @@ public class ThongKe {
 		frame.getContentPane().setLayout(null);
 		frame.setUndecorated(true);
 		tk_bus = new ThongKe_BUS();
-		tk_dao = new ThongKe_DAO();
+//		tk_dao = new ThongKe_DAO();
 		
 		JPanel panel = new JPanel();
 		panel.setBackground(SystemColor.scrollbar);
@@ -163,7 +169,13 @@ public class ThongKe {
 		btnThoat.setFont(new Font("Segoe UI", Font.BOLD, 13));
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TrangChu tc = new TrangChu();
+				TrangChu tc = null;
+				try {
+					tc = new TrangChu();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tc.setVisible(true);
 				frame.setVisible(false);
 				
@@ -268,7 +280,7 @@ public class ThongKe {
 		DocDuLieu();
 	}
 	
-	private static void DocDuLieu() {
+	private static void DocDuLieu() throws RemoteException {
 	    ArrayList<Object[]> list = tk_bus.getAllThongKe();
 	    for (Object[] tk : list) {
 	        model.addRow(tk);

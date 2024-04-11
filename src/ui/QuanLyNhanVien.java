@@ -467,13 +467,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.rmi.RemoteException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.awt.Font;
+import java.awt.HeadlessException;
+
 import javax.swing.SwingConstants;
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -487,11 +491,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InNhanVien;
 import bus.NhanVien_BUS;
 import connectDB.*;
+import cre.*;
 import dao.NhanVien_DAO;
 import entity.*;
-import cre.*;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -509,7 +514,7 @@ public class QuanLyNhanVien {
 	private DefaultTableModel modelNhanVien;
 	private JTable table;
 	private JDateChooser dateNgSinh;
-	private NhanVien_BUS nv_bus;
+	private InNhanVien nv_bus;
 	private JComboBox cboMaNV;
 	private NhanVien_CRE nv_cre;
 
@@ -534,7 +539,7 @@ public class QuanLyNhanVien {
 		return frame;
 	}
 
-	public QuanLyNhanVien() {
+	public QuanLyNhanVien() throws RemoteException, SQLException {
 		try {
 			ConnectDB.getInstance().connect();
 		} catch (Exception e) {
@@ -542,7 +547,7 @@ public class QuanLyNhanVien {
 		}
 		initialize();
 	}
-	private void initialize() {
+	private void initialize() throws RemoteException, SQLException {
 		frame = new JFrame();
 		frame.getContentPane().setBackground(SystemColor.scrollbar);
 		frame.setTitle("QUẢN LÝ NHÂN VIÊN");
@@ -645,10 +650,15 @@ public class QuanLyNhanVien {
 		btnThem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (KiemTraDuLieu() == true) {
-					Them();
-				} else {
-					JOptionPane.showMessageDialog(null, "Lỗi thêm!");
+				try {
+					if (KiemTraDuLieu() == true) {
+						Them();
+					} else {
+						JOptionPane.showMessageDialog(null, "Lỗi thêm!");
+					}
+				} catch (HeadlessException | RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});
@@ -760,7 +770,12 @@ public class QuanLyNhanVien {
 					}
 				} catch (Exception e3) {
 					JOptionPane.showMessageDialog(null, "Lỗi");
-					DocDuLieutrenSQL();
+					try {
+						DocDuLieutrenSQL();
+					} catch (RemoteException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -794,7 +809,13 @@ public class QuanLyNhanVien {
 		
 		btnThoat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TrangChu tc = new TrangChu();
+				TrangChu tc = null;
+				try {
+					tc = new TrangChu();
+				} catch (RemoteException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tc.setVisible(true);
 //				setVisible(false);
 				frame.setVisible(false);
@@ -811,7 +832,12 @@ public class QuanLyNhanVien {
 		btnLamMoi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				XoahetDuLieutrenTable();
-				DocDuLieutrenSQL();
+				try {
+					DocDuLieutrenSQL();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		ArrayList<NhanVien> listnv = nv_bus.getallNhanVien();
@@ -913,7 +939,7 @@ public class QuanLyNhanVien {
 		DefaultTableModel md = (DefaultTableModel)table.getModel();
 		md.getDataVector().removeAllElements();
 	}
-	private void DocDuLieutrenSQL() {
+	private void DocDuLieutrenSQL() throws RemoteException {
 		List<NhanVien> list = nv_bus.getallNhanVien();
 		if(modelNhanVien==null) {
 			JOptionPane.showMessageDialog(null, "modelNhanVien không tồn tại");
@@ -959,7 +985,7 @@ public class QuanLyNhanVien {
 		return maNV; 
 	}
 	
-	private boolean KiemTraDuLieu() {
+	private boolean KiemTraDuLieu() throws RemoteException {
 		String tenNV = txtHoTen.getText().trim();
 		String diaChi = txtDiaChi.getText().trim();
 		String sdt = txtSDT.getText().trim();

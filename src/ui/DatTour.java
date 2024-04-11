@@ -1,3 +1,4 @@
+
 package ui;
 
 import java.awt.EventQueue;
@@ -10,6 +11,8 @@ import javax.swing.JOptionPane;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.HeadlessException;
+
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
  
@@ -22,6 +25,11 @@ import javax.swing.text.NumberFormatter;
 
 import com.toedter.calendar.JDateChooser;
 
+import Interface.InChiTietHoaDon;
+import Interface.InHoaDon;
+import Interface.InKhachHang;
+import Interface.InNhanVien;
+import Interface.InTour;
 import bus.ChiTietHoaDon_BUS;
 import bus.HoaDon_BUS;
 import bus.KhachHang_BUS;
@@ -58,6 +66,7 @@ import javax.swing.border.BevelBorder;
 import java.awt.SystemColor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.rmi.RemoteException;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.UIManager;
@@ -81,11 +90,11 @@ public class DatTour extends JFrame {
 	
 
 	
-	private KhachHang_BUS khBus;
-	private NhanVien_BUS nvBus;
-	private Tour_BUS tourBus;
-	private HoaDon_BUS hoaDonBus;
-	private ChiTietHoaDon_BUS ctHoaDonBus;
+	private InKhachHang khBus;
+	private InNhanVien nvBus;
+	private InTour tourBus;
+	private InHoaDon hoaDonBus;
+	private InChiTietHoaDon ctHoaDonBus;
  
  
 
@@ -131,8 +140,10 @@ public class DatTour extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @throws SQLException 
+	 * @throws RemoteException 
 	 */
-	public DatTour() {
+	public DatTour() throws RemoteException, SQLException {
 		setForeground(new Color(255, 255, 255));
 		setBackground(new Color(0, 204, 204));
 		setTitle("ĐẶT TOUR");
@@ -209,7 +220,13 @@ public class DatTour extends JFrame {
 		cbMaKH.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String ma = (String) cbMaKH.getSelectedItem();
-				ArrayList<KhachHang> listKH = khBus.getkhachhangTheoMaKH(ma);
+				ArrayList<KhachHang> listKH = null;
+				try {
+					listKH = khBus.getkhachhangTheoMaKH(ma);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				for(KhachHang kh : listKH) {
 					txtTenKH.setText(kh.getTenKH());
 					txtDiaChi.setText(kh.getDiaChi());
@@ -263,7 +280,12 @@ public class DatTour extends JFrame {
 		cbMaNV.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String ma = (String) cbMaNV.getSelectedItem();
-				listNV = nvBus.getNhanVienTheoMaNV(ma);
+				try {
+					listNV = nvBus.getNhanVienTheoMaNV(ma);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				for(NhanVien nv : listNV) {
 					txtTenNV.setText(nv.getTenNV());
 				}
@@ -365,10 +387,16 @@ public class DatTour extends JFrame {
 		cbMaTour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String ma = (String) cbMaTour.getSelectedItem();
-				listTour = tourBus.getTourTheoMaTour(ma);
+				try {
+					listTour = tourBus.getTourTheoMaTour(ma);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				for(Tour t : listTour) {
 					txtTenTour.setText(t.getTenTour());
 					txtGia.setText(Double.toString(t.getGiatien()));
+					
 					
 				}
 			}
@@ -466,24 +494,35 @@ public class DatTour extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				//Kiểm tra biểu thức chính quy
 				//Lấy dữ liệu từ JTextField,tạo 1 hóa đơn
-				if(validData()) {
-					HoaDon hd = getSelectedDataHDTable();
-					ChiTietHoaDon cthd = getSelectedDataCTHDTable();
-					//Lưu vào database
-					int select = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn đặt tour?","Chú Ý",JOptionPane.YES_NO_OPTION);
-					if(select == JOptionPane.YES_OPTION) {
-						try {
-							hoaDonBus.create(hd);
-							ctHoaDonBus.create(cthd);
-							model.addRow(new Object[] {
-									cthd.getMaHD().getMaHD(),cthd.getMaTour().getMaTour(),cthd.getSoLuongKhach(),cthd.getDonGia(),cthd.getThanhTien()
-							} );
-							JOptionPane.showMessageDialog(null, "Đặt tour thành công!");
-						} catch (Exception e2) {
-							JOptionPane.showMessageDialog(null, "Đặt tour thất bại!");
-							e2.printStackTrace();
+				try {
+					if(validData()) {
+						HoaDon hd = getSelectedDataHDTable();
+						ChiTietHoaDon cthd = getSelectedDataCTHDTable();
+						//Lưu vào database
+						int select = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn đặt tour?","Chú Ý",JOptionPane.YES_NO_OPTION);
+						if(select == JOptionPane.YES_OPTION) {
+							try {
+								hoaDonBus.create(hd);
+								ctHoaDonBus.create(cthd);
+								model.addRow(new Object[] {
+										cthd.getMaHD().getMaHD(),cthd.getMaTour().getMaTour(),cthd.getSoLuongKhach(),cthd.getDonGia(),cthd.getThanhTien()
+								} );
+								JOptionPane.showMessageDialog(null, "Đặt tour thành công!");
+							} catch (Exception e2) {
+								JOptionPane.showMessageDialog(null, "Đặt tour thất bại!");
+								e2.printStackTrace();
+							}
 						}
 					}
+				} catch (HeadlessException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});
@@ -495,7 +534,13 @@ public class DatTour extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				int select = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn thoát?","Cảnh Báo",JOptionPane.YES_NO_OPTION);
 				if(select == JOptionPane.YES_OPTION) {
-					TrangChu tc = new TrangChu();
+					TrangChu tc = null;
+					try {
+						tc = new TrangChu();
+					} catch (RemoteException | SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					tc.setVisible(true);
 					dispose();
 			}
@@ -543,7 +588,13 @@ public class DatTour extends JFrame {
 		JButton btnThngKHa = new JButton("DANH SÁCH HÓA ĐƠN");
 		btnThngKHa.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				QuanLyHoaDon tk = new QuanLyHoaDon();
+				QuanLyHoaDon tk = null;
+				try {
+					tk = new QuanLyHoaDon();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				tk.setVisible(true);
 				dispose();
 			}
@@ -557,17 +608,34 @@ public class DatTour extends JFrame {
 		JButton btnHuyTour = new JButton("HỦY ĐẶT TOUR");
 		btnHuyTour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<KhachHang> ds = khBus.getkhachhangTheoMaKH(cbMaKH.getSelectedItem().toString());
+				ArrayList<KhachHang> ds = null;
+				try {
+					ds = khBus.getkhachhangTheoMaKH(cbMaKH.getSelectedItem().toString());
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 
 				int hoi = JOptionPane.showConfirmDialog(null, "Bạn có chắc hủy đặt ?", "Chú ý",
 						JOptionPane.YES_NO_OPTION);
 
 				if (hoi == JOptionPane.YES_OPTION) {
 					for (KhachHang kh : ds) {
-						khBus.delete(kh);
+						try {
+							khBus.delete(kh);
+						} catch (RemoteException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 
 					}
-					TrangChu tc = new TrangChu();
+					TrangChu tc = null;
+					try {
+						tc = new TrangChu();
+					} catch (RemoteException | SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					tc.setVisible(true);
 					setVisible(false);
 				}
@@ -623,7 +691,7 @@ public class DatTour extends JFrame {
 	
 	
 
-	protected boolean validData() {
+	protected boolean validData() throws RemoteException, SQLException {
 		String sl = txtSLKhach.getText().trim();
 		if(!isJComboBoxNotEmpty(cbMaNV)) {
 			showMessageCB("Vui lòng chọn mã nhân viên!", cbMaNV);
@@ -733,7 +801,7 @@ public class DatTour extends JFrame {
 	}
 	
 	//-------------------------------------------------------------//
-	public boolean getMaTourInTrangChu(String maTour) {
+	public boolean getMaTourInTrangChu(String maTour) throws RemoteException {
 		ArrayList<Tour> listTour = tourBus.getalltbTour();
 		if(listTour != null) {
 			for(Tour t : listTour) {
@@ -745,7 +813,7 @@ public class DatTour extends JFrame {
 		}
 		return false;
 	}
-	public boolean getMaKHtoOder(String maKH) {
+	public boolean getMaKHtoOder(String maKH) throws RemoteException {
 		ArrayList<KhachHang> listKH = khBus.getallkhachhang();
 		if(listKH != null) {
 			for(KhachHang t : listKH) {
@@ -775,14 +843,20 @@ public class DatTour extends JFrame {
 //			JOptionPane.showMessageDialog(null, "Xóa thất bại");
 //		}
 //	}
-	public int getSLTTour(String ma) {
+	public int getSLTTour(String ma) throws RemoteException, SQLException {
 		ctHoaDonBus = new ChiTietHoaDon_BUS();
 		return ctHoaDonBus.SLTourDaDat(ma);
 	
 	}
 	
-	public void showTongTien(String ma) {
-		ArrayList<entity.HoaDon> dshd = hoaDonBus.getHoaDonTheoMaHD(ma);
+	public void showTongTien(String ma) throws RemoteException {
+		ArrayList<entity.HoaDon> dshd = null;
+		try {
+			dshd = hoaDonBus.getHoaDonTheoMaHD(ma);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for(entity.HoaDon hd : dshd) {
 			DecimalFormat x = new DecimalFormat("###,###,###");
 			txtTongTien.setText(x.format(hd.getTongTien()));
